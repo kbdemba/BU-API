@@ -81,6 +81,13 @@ app.get('/', (req, res) => {
   })
 })
 
+app.post('/', (req, res) => {
+  res.json({
+    jjj: 'posted'
+  })
+})
+
+
 //mount routes
 app.use("/api",indexRouter);
 app.use("/api/player",playerRouter);
