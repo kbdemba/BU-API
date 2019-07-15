@@ -59,6 +59,10 @@ router.get('/current_user',
 	(req, res) => {
 		res.json(req.user)
 });
+router.get('/',
+	(req, res) => {
+		res.json(req.user)
+	});
 
 //Get the profile info for the current user
 router.get('/current_profile', 
