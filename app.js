@@ -82,9 +82,9 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-  res.json({
-    jjj: 'posted'
-  })
+  User.find({})
+  .then(users => res.json(users))
+  .catch(err => res.json(err))
 })
 
 
