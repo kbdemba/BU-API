@@ -52,6 +52,11 @@ router.post(`/register_coach`, (req, res) => {
 	
 	})
 
+	router.get('/',
+	(req, res) => {
+		res.json({welcome: 'home'})
+	});
+
 //Get the Info for the current User
 // not needed here
 router.get('/current_user', 
@@ -59,10 +64,6 @@ router.get('/current_user',
 	(req, res) => {
 		res.json(req.user)
 });
-router.get('/',
-	(req, res) => {
-		res.json(req.user)
-	});
 
 //Get the profile info for the current user
 router.get('/current_profile', 
