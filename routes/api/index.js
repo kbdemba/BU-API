@@ -14,6 +14,8 @@ const Quote = require('../../models/Quote');
 const validateLoginInput = require('../../validation/index/login');
 const validateUpdatePW = require('../../validation/index/updatePW');
 
+
+
 //add an Admin or coach
 //make all async functions future
 router.post(`/register_coach`, (req, res) => {
@@ -51,11 +53,6 @@ router.post(`/register_coach`, (req, res) => {
 	})
 	
 	})
-
-	router.get('/',
-	(req, res) => {
-		res.json({welcome: 'home'})
-	});
 
 //Get the Info for the current User
 // not needed here
