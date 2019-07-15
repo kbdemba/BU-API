@@ -1,0 +1,4 @@
+should i put more work on the server or on the client side
+how do i handle the errors
+
+when ever there is an error, alert it on the screen, if the user presses the ok button, clear error field on the store
