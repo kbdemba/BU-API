@@ -76,6 +76,7 @@ app.use(function(req,res,next){
     next();
 });
 app.get('/', (req, res) => {
+  console.log(process.env.DBUSER)
   res.json({
     jjj: 'fff'
   })
