@@ -80,8 +80,9 @@ app.use(function(req,res,next){
 });
 app.get('/', (req, res) => {
   console.log(process.env.DBUSER)
-  console.log(process.env.DBUSER)
-  console.log(process.env.DBUSER)
+  console.log(process.env.DBPW)
+  console.log(process.env.SECRET)
+  console.log(process.env.ADMIN_PASSWORD)
   res.json({
     jjj: 'fff'
   })
