@@ -31,7 +31,8 @@ const app = express();
 //connecting Locally
 //mongoose.connect('mongodb://localhost:27017/bu_soccer', { useNewUrlParser: true });
 //connecting to MLab
-mongoose.connect(`mongodb://${process.env.DBUSER}:${process.env.DBPW}@ds231207.mlab.com:31207/busoccer`, { useNewUrlParser: true });
+//mongoose.connect(`mongodb://${process.env.DBUSER}:${process.env.DBPW}@ds231207.mlab.com:31207/busoccer`, { useNewUrlParser: true });
+mongoose.connect(`mongodb://kebba:school02`, { useNewUrlParser: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -76,6 +77,8 @@ app.use(function(req,res,next){
     next();
 });
 app.get('/', (req, res) => {
+  console.log(process.env.DBUSER)
+  console.log(process.env.DBUSER)
   console.log(process.env.DBUSER)
   res.json({
     jjj: 'fff'
