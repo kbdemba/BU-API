@@ -83,9 +83,12 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
   console.log('posting11')
-  User.find({})
-  .then(users => res.json(users))
-  .catch(err => res.json(err))
+  res.json({
+    jjj: 'posted'
+  })
+  // User.find({})
+  // .then(users => res.json(users))
+  // .catch(err => res.json(err))
 })
 
 
