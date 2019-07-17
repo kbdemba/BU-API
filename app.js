@@ -82,6 +82,7 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
+  console.log('posting11')
   User.find({})
   .then(users => res.json(users))
   .catch(err => res.json(err))
@@ -89,8 +90,8 @@ app.post('/', (req, res) => {
 
 
 //mount routes
-app.use("/api",indexRouter);
-app.use("/api/player",playerRouter);
+app.use("/api",indexRouter); 
+app.use("/api/player",playerRouter); 
 app.use("/api/game", gameRouter); 
 app.use("/api/practice", practiceRouter);
 app.use('/api/announcement', announcementRouter);
