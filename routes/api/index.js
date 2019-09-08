@@ -236,7 +236,7 @@ router.put('/refreshToken',(req, res) => {
 	// 	}
 	// })
 	// .catch(err => {
-	// 	res.json({sn error wile making the querywith status 400 or 402 or somthing})
+	// 	res.json({})
 	// })
 })
 router.post('/auth/refreshToken', (req, res) => {
