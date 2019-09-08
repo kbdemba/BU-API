@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const passport = require('passport');
 //const moment = require('moment');
+const {handlePushTokens} = require('../../utils/token')
 
 //load user and Announcememt Model
 const User = require('../../models/User');
@@ -19,7 +20,7 @@ router.get('/test', (req, res) => res.json({
 // @desc    Get all the announcement
 // @access  Public
 router.get('/all', (req, res) => {
-	//automatically delete all the past announcements afte a week. should I? hell naa
+	
 	const errors = {};
 	Announcememt.find()//get them in date order
 		.then(announcement => {
@@ -88,12 +89,20 @@ router.post('/new',
 	 const announcement_fields = req.body;
 	//
 	Announcememt.create(req.body)
-		.then(practice => res.json(practice))
+		.then(announcement => {
+			res.json(announcement)
+			//message: `practice for ${practice.team} AT ${practice.team} with moment.js`
+			handlePushTokens({
+				title: `${announcement.subject}`,
+				message: `${announcement.message.substring(0, 100)}`
+			});
+		
+		})
 		.catch(err => res.json(err))
 });
 
 
-// @route   POST api/announcement/edit/:practice_id
+// @route   POST api/announcement/edit/:announcement_id
 // @desc    Edit announcement
 // @access  Private
 router.put('/edit/:id', 
@@ -120,9 +129,17 @@ router.put('/edit/:id',
 	 const announcement_fields = req.body;
 	//
 	Announcememt.findByIdAndUpdate(req.params.id, req.body, {new: true})
-		.then(practice => res.json(practice))
+		.then(announcement => {
+			res.json(announcement)
+			//message: `practice for ${practice.team} AT ${practice.team} with moment.js`
+			handlePushTokens({
+				title: `${announcement.subject} :: Updated`,
+				message: `${announcement.message.substring(0, 100)}`
+			});
+			
+		})
 		.catch(err => res.status(404).json({
-			practice: 'Error updating Practice',
+			announcement: 'Error updating announcement',
 			err: err.message
 		}));
 });
@@ -144,7 +161,7 @@ router.delete(
 					})
 				})
 				.catch(err => res.json({ 
-					practice: 'error deleting practice' 
+					announcement: 'error deleting announcement' 
 				}));
 		//}else{
 			// return res

@@ -3,16 +3,18 @@ const router = express.Router();
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const uniqid = require('uniqid');
 
 //load models
 const User = require('../../models/User');
 const Profile = require('../../models/Profile');
 const Announcement = require('../../models/Announcement');
-const Quote = require('../../models/Quote');
+//const Quote = require('../../models/Quote');
 
 //Validators
 const validateLoginInput = require('../../validation/index/login');
 const validateUpdatePW = require('../../validation/index/updatePW');
+//const validateUpdateProfile = require('../../validation/index/updateProfile');
 
 
 
@@ -56,11 +58,27 @@ router.post(`/register_coach`, (req, res) => {
 
 //Get the Info for the current User
 // not needed here
-router.get('/current_user', 
+router.get('/current_user',
 	passport.authenticate('jwt', {session: false}), 
 	(req, res) => {
 		res.json(req.user)
-});
+		//res.json({ff:'fff'})
+		//res.json({ss:'kfkj'})
+
+	});
+
+	router.get('/current_user22',
+		passport.authenticate('jwt', {
+			session: false
+		}),
+		(req, res) => {
+			res.json({aha: req.user.email})
+			//res.json({ff:'fff'})
+			//res.json({ss:'kfkj'})
+
+		});
+
+
 
 //Get the profile info for the current user
 router.get('/current_profile', 
@@ -165,11 +183,14 @@ router.post('/login', (req, res) => {
 				jwt.sign(
 					payload, 
 					secretOrKey, 
-					{expiresIn: 3600}, //3600 means an hour, its in seconds, see how to refresh it
+					{expiresIn: 360}, //3600 means an hour, its in seconds, see how to refresh it
 					(err, token)=>{
+						const refreshToken = uniqid() //uu'something creates by a UID + userId'
+						//save the refreshtoken to a database or an object for now
 						res.json({
 							success: true,
-							token: `Bearer ${token}`
+							token: `Bearer ${token}`,
+							refreshToken,
 						})
 					}
 				);
@@ -182,10 +203,67 @@ router.post('/login', (req, res) => {
 	});
 });
 
+router.put('/refreshToken',(req, res) => {
+//check and see if the refresh token is in the List
+	// RefreshToken.find({user:req.body.userId})
+	// .then(token=> {
+	// 		//SECURITY
+			//if(token){
+				//if(token.tokens.includes(req.body.refreshToken) && notExpired){}
+	// 	
+	// 	//hash the refresh token ????????
+	// 	 	//update the old ref token with a newone
+	// 		const newRefreshToken = uniqid() 'somthing creates by a UID + userId'
+	// 		token.reftoken = newRefreshToken;
+	//			token.expiryDate = 90 days from now
+	// 		token.save()
+	// 	//issue a new acctoken
+	// 		//const payload = { id: token.id, }
+	// 		const payload = {} // i dont think i need this for the App
+	// 		const secretOrKey = process.env.SECRET; 
+	// 		jwt.sign(
+	// 			payload, 
+	// 			secretOrKey, 
+	// 			{expiresIn: 360}, //3600 means an hour, its in seconds, 
+	// 			(err, token)=>{
+	// 				res.json({
+	// 					success: true,
+	// 					token: `Bearer ${token}`,
+	// 					refreshToken: newRefreshToken,
+	// 				})
+	// 			}
+	// 		);
+	// 	}
+	// })
+	// .catch(err => {
+	// 	res.json({sn error wile making the querywith status 400 or 402 or somthing})
+	// })
+})
+router.post('/auth/refreshToken', (req, res) => {
+	console.log(req.body)
+	const newRefreshToken = uniqid()
+	const payload = { id: '5d2cf41af132533f285200b5'}
+	const secretOrKey = process.env.SECRET; 
+	jwt.sign(
+		payload, 
+		secretOrKey, 
+		{expiresIn: 360}, //3600 means an hour, its in seconds, 
+		(err, token)=>{
+			res.json({
+				success: true,
+				token: `Bearer ${token}`,
+				refreshToken: newRefreshToken,
+			})
+		}
+	);
+});
+console.log(uniqid()) //this is just unique
+console.log(uniqid())
+console.log(uniqid())
 
 // update password
 // Email sending will be done later future
-router.post('/update_password',
+router.put('/update_password',
 	passport.authenticate('jwt', {session: false}),
 	(req, res) => {
 
@@ -197,7 +275,8 @@ router.post('/update_password',
 		}
 		User.findById(req.user._id)
 		.then(user => {
-			bcrypt.compare(req.body.oldPassword, user.password).then( isMatch => {
+			bcrypt.compare(req.body.oldPassword, user.password)
+			.then( isMatch => {
 				if(isMatch) {
 					user.password = req.body.newPassword
 					user.save()
@@ -221,6 +300,42 @@ router.post('/update_password',
 		})
 	});
 
+
+// update password
+// Email sending will be done later future
+router.put('/update_profile',
+	passport.authenticate('jwt', {session: false}),
+	(req, res) => {
+		console.log(req.body, 'body');
+
+		//const {errors, isValid} = validateUpdateProfile(req.body);
+		// Check Validation
+		// if (!isValid) {
+		// 	return res.status(400).json(errors);
+		// }
+		// All this should be under validation
+		const profileFields = {social:{}};
+		if (req.body.nickName) {profileFields.nickName = req.body.nickName;}
+		if (req.body.phoneNumber) {profileFields.phoneNumber = req.body.phoneNumber;}
+		if (req.body.bio) {profileFields.bio = req.body.bio;}
+	   if (req.body.twitter) {profileFields.social.twitter = req.body.twitter;}
+		if (req.body.facebook) {profileFields.social.facebook = req.body.facebook}
+		if (req.body.snapchat) {profileFields.social.snapchat = req.body.snapchat;}
+		if (req.body.instagram) {profileFields.social.instagram = req.body.instagram;}
+
+		console.log(profileFields, 'profilefields')
+
+		Profile.findOneAndUpdate({user: req.user._id}, profileFields, {new: true})
+		.then(profile => {
+			res.json(profile)
+		})
+		.catch(err => {
+			res.status(404).json({
+				name: 'Update Error',
+				message: 'Error updating your Profile'
+		})});
+	});
+
 //forgot password coming soon	
 router.get('/forget password', async (req, res) => {
 	res.json({comingsoon: 'not yet implemented'})
@@ -229,19 +344,6 @@ router.get('/forget password', async (req, res) => {
 
 //module.exports = router;
 //delete the rest below this.
-
-//make a quote
-router.post('/quote/new', (req, res) => {
-	//res.json({})
-	//console.log(req.body);
-	Quote.create(req.body, (err,game)=>{
-		if (err) {
-			console.log(err)
-		} else {
-			res.json(game)
-		}
-	})
-}); 
 
 router.get('/announcementTest', async (req, res) => {
 	const announcement = await Announcement.find();
@@ -264,6 +366,26 @@ router.post('/announcement', (req, res) => {
 
 }); 
 
+const {saveToken, handlePushTokens} = require('../../utils/token')
+
+router.post('/token', (req, res) => {
+	
+	console.log(`Received token, ${req.body.token.value}`);
+	saveToken(req.body.token.value);
+	res.json({success:true})
+	// if the saved token on the device (local storage) is different from the one getasyncToken or whtever,
+	// then hit this route, else don't
+});
+
+router.post('/message', (req, res) => {
+	// console.log(`111  Received message, ${req.body.message}`);
+	handlePushTokens(req.body.message);
+	console.log(`Received message, ${req.body.message}`);
+	res.send(`Received message, ${req.body.message}`);
+});
+
 module.exports = router;
+
+
 
 

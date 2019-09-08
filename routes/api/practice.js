@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const moment = require('moment');
 
+const {handlePushTokens} = require('../../utils/token')
+
 const {getUpcomingEvents} = require('../../utils')
 
 // Load Practice Model
@@ -27,6 +29,7 @@ router.get('/test', (req, res) => res.json({
 router.get('/all', (req, res) => {
 	const errors = {};
 	Practice.find()
+	.sort({dateAndTime: 1})
 		.then(practice => {
 			if (!practice) {
 				// i dont think so
@@ -46,9 +49,11 @@ router.get('/all', (req, res) => {
 router.get('/upcoming_practices', (req, res) => {
 	const errors = {};
 	Practice.find({dateAndTime: {$gte: new Date()}}) // 
-		.sort({date: 1})
+		.sort({dateAndTime: 1})
 		.limit(4)
 		.then(practices => {
+			console.log(new Date())
+			console.log(practices.length)
 			if (!practices) {// return an empty object
 				console.log('no practice found')
 				//errors.noprofile = 'There are no practice for this season';
@@ -111,7 +116,15 @@ router.post('/new',
 	}
 	
 	Practice.create(data) // DO A BETTER ERROR HANDLING
-		.then(practice => res.json(practice))
+		.then(practice => {
+			res.json(practice)
+			//send notification
+			//see how to make this better
+			//maybe title: New Practice Added
+			//message: `practice for ${practice.team} AT ${practice.team} with moment.js`
+			handlePushTokens({title: 'Practice',message: 'New Practice Added'});
+
+		})
 		.catch(err => res.json(err.message))
 });
 
@@ -143,7 +156,14 @@ router.put(
 		}
 	
 		Practice.findByIdAndUpdate(req.params.practice_id, practice_fields, {new: true})
-			.then(practice => res.json(practice))
+			.then(practice => {
+				res.json(practice)
+				//message: `practice for ${practice.team} AT ${practice.team} with moment.js`
+				handlePushTokens({
+					title: 'Practice',
+					message: 'Practice Updated'
+				});
+			})
 			.catch(err => res.status(404).json({
 				practice: 'Error updating Practice'
 			}));

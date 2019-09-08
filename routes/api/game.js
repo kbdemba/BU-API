@@ -3,6 +3,8 @@ const router = express.Router();
 const passport = require('passport');
 const moment = require('moment')
 
+const {handlePushTokens} = require('../../utils/token')
+
 // Load Profile and User Model
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
@@ -35,7 +37,9 @@ router.get('/test', (req, res) => {
 // @route   GET api/game/all
 // @desc    Get the games for this season
 // @access  Public
-router.get('/all', (req, res) => {
+router.get('/all', 
+	passport.authenticate('jwt', { session: false }),
+	(req, res) => {
 
 	const errors = {};
 	Game.find().sort({gameDate: 1}) 
@@ -124,7 +128,14 @@ router.post('/new',
 	}
 	//data.roster = ['5d00d7f12af8db344eb581c8', '5d0a3b392cc90dd7d83c4461', '5d0a3b5a2cc90dd7d83c4463'];
 	Game.create(data)
-		.then(game => res.json(game))
+		.then(game => {
+			res.json(game)
+			//message: `practice for ${practice.team} AT ${practice.team} with moment.js`
+			handlePushTokens({
+				title: 'New Game Added',
+				message: 'vs Name, date, time, venue, type'
+			});
+		})
 		.catch(err => res.json(err))
 });
 
@@ -156,6 +167,13 @@ router.put(
 					.populate({ path: 'roster', select: 'firstName lastName position' })
 					.then(Updatedgame => {
 						res.json(Updatedgame) 
+						//message: `practice for ${practice.team} AT ${practice.team} with moment.js`
+						//check if its the roster thats benn updated and the name of the team
+						//you are playing against
+						handlePushTokens({
+							title: 'Game',
+							message: 'Roster Updated for William Carey Game'
+						});
 					})
 			})
 			.catch(err => {

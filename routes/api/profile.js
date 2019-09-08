@@ -132,7 +132,7 @@ router.post('/', (req, res) => {
 	
 	// Social
 	profileFields.social = {};
-	if (req.body.youtube) profileFields.social.youtube = req.body.youtube;
+	//if (req.body.youtube) profileFields.social.youtube = req.body.youtube;
 	if (req.body.twitter) profileFields.social.twitter = req.body.twitter;
 	if (req.body.facebook) profileFields.social.facebook = req.body.facebook;
 	if (req.body.snapchat) profileFields.social.linkedin = req.body.linkedin;

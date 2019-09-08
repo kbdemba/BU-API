@@ -14,7 +14,7 @@ const PracticeSchema = new Schema({
 		type: Date
 	},
 	time: { 
-		type: String 
+		type: Date 
 	},
 	endTime: {
 		type: Date,

@@ -60,7 +60,7 @@ const ProfileSchema = new Schema({
 	bio: { // a few paragraph that the player will write about him self
 		type: String
 	},
-	phone_number: {
+	phoneNumber: {
 		type: String
 	},
 	social: {
